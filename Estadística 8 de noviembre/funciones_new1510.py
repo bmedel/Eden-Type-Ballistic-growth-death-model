@@ -139,22 +139,22 @@ def check_vecinos(positions_list, edgelist, std, bordes):
                         (np.cos(4 * ang), np.sin(4 * ang)),
                         (np.cos(5 * ang), np.sin(5 * ang))])
 
-    for i, j in enumerate(positions_list):
-        
-      if np.any(np.isnan(j)):
+    for i, j in enumerate(positions_list): # Trabajaremos sobre cada partícula
+
+      if np.any(np.isnan(j)): # Testea si no es una partícula muerta (positions_list[muerta] = NaN)
          pass
       
       else:
-        if not len(edgelist[i]) == 2:
+        if not len(edgelist[i]) == 2: # Si la partícula está en el inicio, no tendrá una dirección privilegiada (ergo equiprob)
 
           test = np.all([
               np.any(np.all(np.isclose(j + k, positions_list, rtol=1e-5, atol=1e-6, equal_nan=False), axis=1))
-              for k in options])
-          test2 = np.any([np.all(np.abs(j+k) <= np.array([bordes]))] for k in options)
-          if not test and test2:
+              for k in options]) # Testea si hay algun espacio en alguna dirección que no esté ocupado por alguna partícula en position_list.
+          test2 = np.any([np.all(np.abs(j+k) <= np.array([bordes]))] for k in options) # Revisa si hay alguna dirección que se mantenga dentro de la caja (bordes)
+          if not test and test2: # Si se cumplen estas condiciones, es partícula activa.
               ind_activo.append(i)
         else:
-           ind_position_pasada = edgelist[i][0]
+           ind_position_pasada = edgelist[i][0] # revisamos la partícula de la cual viene la partícula activa
         
            position_pasada = positions_list[ind_position_pasada]
            position_actual = positions_list[i]
@@ -163,14 +163,14 @@ def check_vecinos(positions_list, edgelist, std, bordes):
             # Esto se puede realizar determinando el lugar elegido anteriormente, cómo hacemos esto?
             # podemos encontrar la dirección en la que está la partícula anterior.
 
-           array_prob, options_new = direccion_priv(position_pasada, position_actual, std, options)
+           array_prob, options_new = direccion_priv(position_pasada, position_actual, std, options) # option_new devuelve el arreglo exceptuando la opción donde se encuentra la partícula pasada
 
            for k in options_new:
-            test = np.any(np.all(np.isclose(j + k, positions_list, rtol=1e-5, atol=1e-6, equal_nan=False), axis=1)) 
+            test = np.any(np.all(np.isclose(j + k, positions_list, rtol=1e-5, atol=1e-6, equal_nan=False), axis=1)) # Mismos test que antes, notar que la misma opción debe cumplir ambas condiciones
             test1 = np.all(np.abs(j+k) <= np.array([bordes]))
             if not test and test1:
                 ind_activo.append(i)
-                break
+                break # Si alguna dirección cumple con esta condición, es suficiente.
     
     return ind_activo
 
